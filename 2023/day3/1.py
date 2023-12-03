@@ -9,6 +9,24 @@ DIRECTIONS = [
     [1, 1]
 ]
 
+def get_val(arr, i, j):
+    val = arr[i][j]
+    left = j - 1
+    while left >= 0:
+        if not arr[i][left].isdigit():
+            break
+        val = arr[i][left] + val
+        arr[i][left] = '.'
+        left -= 1
+    right = j + 1
+    while right < len(arr[0]):
+        if not arr[i][right].isdigit():
+            break
+        val += arr[i][right]
+        arr[i][right] = '.'
+        right += 1
+    return int(val)
+
 def is_out_of_bounds(i, j, m, n):
     return i < 0 or i >= m or j < 0 or j >= n
 
@@ -24,28 +42,17 @@ def solve():
     f.close()
     
     m, n = len(arr), len(arr[0])
-    i = 0
-    while i < m:
-        j = 0
-        while j < n:
+    
+    for i in range(m):
+        for j in range(n):
             c = arr[i][j]
-            if not c.isdigit():
-                j += 1
+            if not is_symbol(c):
                 continue
-            num = ''
-            is_part_num = False
-            while c.isdigit():
-                for d in DIRECTIONS:
-                    x, y = i+d[0], j+d[1]
-                    is_part_num = is_part_num or (not is_out_of_bounds(x, y, m, n) and is_symbol(arr[x][y]))
-                j += 1
-                num += c
-                if is_out_of_bounds(i, j, m, n):
-                    break
-                c = arr[i][j]
-            if is_part_num:
-                res += int(num)
-        i += 1
+            for d in DIRECTIONS:
+                x, y = i+d[0], j+d[1]
+                if not is_out_of_bounds(x, y, m, n) and arr[x][y].isdigit():
+                    res += get_val(arr, x, y)
+
     return res
 
 print(solve())

@@ -30,9 +30,6 @@ def get_val(arr, i, j):
 def is_out_of_bounds(i, j, m, n):
     return i < 0 or i >= m or j < 0 or j >= n
 
-def is_symbol(c):
-    return not c.isdigit() and c != '.'
-
 def solve():
     f = open('in.txt', 'r')
     arr = []
