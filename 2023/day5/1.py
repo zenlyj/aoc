@@ -17,7 +17,7 @@ def parse_map(s):
 def get_mapped_value(value, mapping):
     for m in mapping:
         dst, src, length = m[0], m[1], m[2]
-        if value >= src and value <= src+length:
+        if value >= src and value < src+length:
             return value+(dst-src)
     return value
 

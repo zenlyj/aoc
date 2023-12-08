@@ -14,12 +14,37 @@ def parse_map(s):
     mappings = s.split('\n')[1:]
     return [[int(c) for c in m.split()] for m in mappings]
 
-def get_mapped_value(value, mapping):
+def get_mapped_values(seed_ranges, mapping):
+    res = []
+    for r in seed_ranges:
+        res += split_range(r[0], r[1], mapping)
+    return res
+
+def split_range(start, end, mapping):
+    split = []
     for m in mapping:
         dst, src, length = m[0], m[1], m[2]
-        if value >= src and value <= src+length:
-            return value+(dst-src)
-    return value
+        lim = src+length-1
+        offset = dst-src
+        if start >= src and end <= lim:
+            split.append((start+offset, end+offset))
+            break
+        elif start >= src and start <= lim and end > lim:
+            split.append((start+offset, lim+offset))
+            split += split_range(lim+1, end, mapping)
+            break
+        elif start < src and end >= src and end <= lim:
+             split += split_range(start, src-1, mapping)
+             split.append((src+offset, end+offset))
+             break
+        elif start < src and end >= src and end > lim:
+            split += split_range(start, src-1, mapping)
+            split.append((src+offset, lim+offset))
+            split += split_range(lim+1, end, mapping)
+            break
+    if not split:
+        split.append((start, end))
+    return split
 
 def solve():
     f = open('in.txt', 'r')
@@ -28,12 +53,10 @@ def solve():
     seeds = parse_init(read_until_break(f))
     mappings = [parse_map(read_until_break(f)) for i in range(MAPPING_LEVELS)]
     for i in range(0, len(seeds), 2):
-        for j in range(seeds[i+1]):
-            mapped = seeds[i]+j
-            print(mapped)
-            for mapping in mappings:
-                mapped = get_mapped_value(mapped, mapping)
-            res = min(res, mapped) 
+        seed_ranges = [(seeds[i], seeds[i]+seeds[i+1]-1)]
+        for mapping in mappings:
+            seed_ranges = get_mapped_values(seed_ranges, mapping)
+        res = min(res, min([seed_range[0] for seed_range in seed_ranges]))
     f.close()
     return res
 
